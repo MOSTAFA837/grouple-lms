@@ -1,16 +1,16 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { useGoogleAuth } from "@/hooks/authentication"
-import { Google } from "@/icons"
-import { Loader } from "../loader"
+import { Button } from "@/components/ui/button";
+import { Google } from "@/icons";
+import { Loader } from "../loader";
+import { useGoogleAuth } from "@/hooks/authentication";
 
 type GoogleAuthButtonProps = {
-  method: "signup" | "signin"
-}
+  method: "signup" | "signin";
+};
 
 export const GoogleAuthButton = ({ method }: GoogleAuthButtonProps) => {
-  const { signUpWith, signInWith } = useGoogleAuth()
+  const { signUpWith, signInWith } = useGoogleAuth();
   return (
     <Button
       {...(method === "signin"
@@ -28,5 +28,5 @@ export const GoogleAuthButton = ({ method }: GoogleAuthButtonProps) => {
         Google
       </Loader>
     </Button>
-  )
-}
+  );
+};

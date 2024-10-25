@@ -3,6 +3,7 @@ import { ErrorMessage } from "@hookform/error-message";
 import { FieldErrors, FieldValues, UseFormRegister } from "react-hook-form";
 import { Input } from "../../ui/input";
 import { Label } from "../../ui/label";
+import { cn } from "@/lib/utils";
 
 type FormGeneratorProps = {
   type?: "text" | "email" | "password" | "number";
@@ -37,7 +38,10 @@ export const FormGenerator = ({
             id={`input-${label}`}
             type={type}
             placeholder={placeholder}
-            className="bg-themeBlack border-themeGray text-themeTextGray"
+            className={cn(
+              "bg-themeBlack border-themeGray text-themeTextGray",
+              errors[name] && "border-red-400"
+            )}
             {...register(name)}
           />
           <ErrorMessage
