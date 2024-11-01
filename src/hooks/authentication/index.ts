@@ -1,48 +1,72 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { onSignUpUser } from "@/actions/auth";
+import { SignUpSchema } from "@/components/forms/sign-up/schema";
 import { useSignIn, useSignUp } from "@clerk/nextjs";
 import { OAuthStrategy } from "@clerk/types";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { SignUpSchema } from "@/components/forms/sign-up/schema";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { onSignUpUser } from "@/actions/auth";
-import { useMutation } from "@tanstack/react-query";
-import { SignInSchema } from "@/components/forms/sign-in/schema";
+import { z } from "zod";
+import { SignInSchema } from "../../components/forms/sign-in/schema";
 
-export const useGoogleAuth = () => {
-  const { signIn, isLoaded: LoadedSignIn } = useSignIn();
-  const { signUp, isLoaded: LoadedSignUp } = useSignUp();
+export const useAuthSignIn = () => {
+  const { isLoaded, setActive, signIn } = useSignIn();
+  const {
+    register,
+    formState: { errors },
+    reset,
+    handleSubmit,
+  } = useForm<z.infer<typeof SignInSchema>>({
+    resolver: zodResolver(SignInSchema),
+    mode: "onBlur",
+  });
 
-  const signInWith = (strategy: OAuthStrategy) => {
-    if (!LoadedSignIn) return;
-    try {
-      return signIn.authenticateWithRedirect({
-        strategy,
-        redirectUrl: "/callback",
-        redirectUrlComplete: "/callback/sign-in",
+  const router = useRouter();
+  const onClerkAuth = async (email: string, password: string) => {
+    if (!isLoaded)
+      return toast("Error", {
+        description: "Oops! something went wrong",
       });
-    } catch (error) {
-      console.error(error);
+    try {
+      const authenticated = await signIn.create({
+        identifier: email,
+        password: password,
+      });
+
+      if (authenticated.status === "complete") {
+        reset();
+        await setActive({ session: authenticated.createdSessionId });
+        toast("Success", {
+          description: "Welcome back!",
+        });
+        router.push("/callback/sign-in");
+      }
+    } catch (error: any) {
+      if (error.errors[0].code === "form_password_incorrect")
+        toast("Error", {
+          description: "email/password is incorrect try again",
+        });
     }
   };
 
-  const signUpWith = (strategy: OAuthStrategy) => {
-    if (!LoadedSignUp) return;
-    try {
-      return signUp.authenticateWithRedirect({
-        strategy,
-        redirectUrl: "/callback",
-        redirectUrlComplete: "/callback/complete",
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  const { mutate: InitiateLoginFlow, isPending } = useMutation({
+    mutationFn: ({ email, password }: { email: string; password: string }) =>
+      onClerkAuth(email, password),
+  });
 
-  return { signUpWith, signInWith };
+  const onAuthenticateUser = handleSubmit(async (values) => {
+    InitiateLoginFlow({ email: values.email, password: values.password });
+  });
+
+  return {
+    onAuthenticateUser,
+    isPending,
+    register,
+    errors,
+  };
 };
 
 export const useAuthSignUp = () => {
@@ -105,7 +129,7 @@ export const useAuthSignUp = () => {
 
       if (completeSignUp.status !== "complete") {
         return toast("Error", {
-          description: "Oops! something went wrong, status incomplete",
+          description: "Oops! something went wrong, status in complete",
         });
       }
 
@@ -158,60 +182,35 @@ export const useAuthSignUp = () => {
   };
 };
 
-export const useAuthSignIn = () => {
-  const { isLoaded, setActive, signIn } = useSignIn();
+export const useGoogleAuth = () => {
+  const { signIn, isLoaded: LoadedSignIn } = useSignIn();
+  const { signUp, isLoaded: LoadedSignUp } = useSignUp();
 
-  const {
-    register,
-    formState: { errors },
-    reset,
-    handleSubmit,
-  } = useForm<z.infer<typeof SignInSchema>>({
-    resolver: zodResolver(SignInSchema),
-    mode: "onBlur",
-  });
-
-  const router = useRouter();
-  const onClerkAuth = async (email: string, password: string) => {
-    if (!isLoaded)
-      return toast("Error", {
-        description: "Oops! something went wrong",
-      });
+  const signInWith = (strategy: OAuthStrategy) => {
+    if (!LoadedSignIn) return;
     try {
-      const authenticated = await signIn.create({
-        identifier: email,
-        password: password,
+      return signIn.authenticateWithRedirect({
+        strategy,
+        redirectUrl: "/callback",
+        redirectUrlComplete: "/callback/sign-in",
       });
-
-      if (authenticated.status === "complete") {
-        reset();
-        await setActive({ session: authenticated.createdSessionId });
-        toast("Success", {
-          description: "Welcome back!",
-        });
-        router.push("/callback/sign-in");
-      }
-    } catch (error: any) {
-      if (error.errors[0].code === "form_password_incorrect")
-        toast("Error", {
-          description: "email/password is incorrect try again",
-        });
+    } catch (error) {
+      console.error(error);
     }
   };
 
-  const { mutate: InitiateLoginFlow, isPending } = useMutation({
-    mutationFn: ({ email, password }: { email: string; password: string }) =>
-      onClerkAuth(email, password),
-  });
-
-  const onAuthenticateUser = handleSubmit(async (values) => {
-    InitiateLoginFlow({ email: values.email, password: values.password });
-  });
-
-  return {
-    onAuthenticateUser,
-    isPending,
-    register,
-    errors,
+  const signUpWith = (strategy: OAuthStrategy) => {
+    if (!LoadedSignUp) return;
+    try {
+      return signUp.authenticateWithRedirect({
+        strategy,
+        redirectUrl: "/callback",
+        redirectUrlComplete: "/callback/complete",
+      });
+    } catch (error) {
+      console.error(error);
+    }
   };
+
+  return { signUpWith, signInWith };
 };

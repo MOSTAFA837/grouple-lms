@@ -1,4 +1,4 @@
-import { RefreshCcw } from "lucide-react"
+import { RefreshCcw } from "lucide-react";
 import {
   Buisness,
   Fitness,
@@ -7,14 +7,14 @@ import {
   PersonalDevelopment,
   SocialMedia,
   Tech,
-} from "../icons"
+} from "../icons";
 
 export type GroupListProps = {
-  id: string
-  label: string
-  icon: JSX.Element
-  path: string
-}
+  id: string;
+  label: string;
+  icon: JSX.Element;
+  path: string;
+};
 
 export const GROUP_LIST: GroupListProps[] = [
   {
@@ -65,4 +65,4 @@ export const GROUP_LIST: GroupListProps[] = [
     icon: <Tech />,
     path: "tech",
   },
-]
+];

@@ -1,14 +1,14 @@
-"use client"
+"use client";
 
-import { Autoplay, FreeMode, Navigation, Pagination } from "swiper/modules"
-import { Swiper, SwiperProps } from "swiper/react"
-import { Label } from "../../ui/label"
+import { Autoplay, FreeMode, Navigation, Pagination } from "swiper/modules";
+import { Swiper, SwiperProps } from "swiper/react";
+import { Label } from "../../ui/label";
 
 type SliderProps = {
-  children: React.ReactNode
-  overlay?: boolean
-  label?: string
-} & SwiperProps
+  children: React.ReactNode;
+  overlay?: boolean;
+  label?: string;
+} & SwiperProps;
 
 export const Slider = ({ children, overlay, label, ...rest }: SliderProps) => {
   return (
@@ -29,5 +29,5 @@ export const Slider = ({ children, overlay, label, ...rest }: SliderProps) => {
         {children}
       </Swiper>
     </div>
-  )
-}
+  );
+};

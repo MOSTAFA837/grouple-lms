@@ -1,5 +1,4 @@
 "use client";
-
 import { FormGenerator } from "@/components/global/form-generator";
 import { Loader } from "@/components/global/loader";
 import { Button } from "@/components/ui/button";

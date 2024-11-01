@@ -7,13 +7,13 @@ type Props = {
   children: React.ReactNode;
 };
 
-async function AuthLayout({ children }: Props) {
+const AuthLayout = async ({ children }: Props) => {
   const user = await onAuthenticatedUser();
 
   if (user.status === 200) redirect("/callback/sign-in");
 
   return (
-    <div className="container m-auto h-screen flex justify-center items-center">
+    <div className="container h-screen flex justify-center items-center">
       <div className="flex flex-col w-full items-center py-24">
         <h2 className="text-4xl font-bold text-themeTextWhite">Grouple.</h2>
         <BackdropGradient
@@ -27,6 +27,6 @@ async function AuthLayout({ children }: Props) {
       </div>
     </div>
   );
-}
+};
 
 export default AuthLayout;
